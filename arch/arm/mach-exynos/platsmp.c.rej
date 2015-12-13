@@ -1,0 +1,11 @@
+--- arch/arm/mach-exynos/platsmp.c
++++ arch/arm/mach-exynos/platsmp.c
+@@ -126,7 +126,7 @@
+ 
+ 		if (timeout == 0) {
+ 			printk(KERN_ERR "cpu1 power enable failed");
+-			spin_unlock(&boot_lock);
++			raw_spin_unlock(&boot_lock);
+ 			return -ETIMEDOUT;
+ 		}
+ 	}

@@ -1,0 +1,43 @@
+On branch odroidxu3-3.10.y
+Your branch is ahead of 'origin/odroidxu3-3.10.y' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	Documentation/hwlat_detector.txt
+	Documentation/trace/histograms.txt
+	arch/arm/mach-exynos/platsmp.c.rej
+	arch/arm/mm/fault.c.rej
+	drivers/gpu/drm/drm_irq.c.rej
+	drivers/gpu/drm/i915/i915_gem.c.rej
+	drivers/misc/Makefile.rej
+	drivers/misc/hwlat_detector.c
+	git_status_out.txt
+	include/asm-generic/irq_work.h
+	include/linux/locallock.h
+	include/linux/mutex.h.rej
+	include/linux/mutex_rt.h
+	include/linux/rwlock_rt.h
+	include/linux/rwlock_types_rt.h
+	include/linux/rwsem_rt.h
+	include/linux/spinlock_rt.h
+	include/linux/spinlock_types_nort.h
+	include/linux/spinlock_types_raw.h
+	include/linux/spinlock_types_rt.h
+	include/linux/wait-simple.h
+	include/linux/work-simple.h
+	include/trace/events/hist.h
+	include/trace/events/latency_hist.h
+	kernel/fork.c.rej
+	kernel/hrtimer.c.rej
+	kernel/rt.c
+	kernel/sched/core.c.rej
+	kernel/sched/work-simple.c
+	kernel/softirq.c.rej
+	kernel/trace/latency_hist.c
+	kernel/wait-simple.c
+	localversion-rt
+	mm/page_alloc.c.rej
+
+nothing added to commit but untracked files present (use "git add" to track)
