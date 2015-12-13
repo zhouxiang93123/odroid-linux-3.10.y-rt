@@ -122,6 +122,7 @@ static int exynos_power_up_cpu(unsigned int phys_cpu)
 
 		if (timeout == 0) {
 			printk(KERN_ERR "cpu%d power up failed\n", phys_cpu);
+                        raw_spin_unlock(&boot_lock);
 			return -ETIMEDOUT;
 		}
 	}
