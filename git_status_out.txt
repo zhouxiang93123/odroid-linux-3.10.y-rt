@@ -1,0 +1,44 @@
+On branch odroidxu3-3.10.y-patch_3.10.93-rt101
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	new file:   Documentation/hwlat_detector.txt
+	new file:   Documentation/trace/histograms.txt
+	new file:   arch/arm/mach-exynos/platsmp.c.rej
+	new file:   arch/arm/mm/fault.c.rej
+	new file:   arch/x86/include/asm/irq_work.h
+	new file:   drivers/gpu/drm/drm_irq.c.rej
+	new file:   drivers/gpu/drm/i915/i915_gem.c.rej
+	new file:   drivers/misc/Makefile.rej
+	new file:   drivers/misc/hwlat_detector.c
+	new file:   include/asm-generic/irq_work.h
+	new file:   include/linux/locallock.h
+	new file:   include/linux/mutex.h.rej
+	new file:   include/linux/mutex_rt.h
+	new file:   include/linux/rwlock_rt.h
+	new file:   include/linux/rwlock_types_rt.h
+	new file:   include/linux/rwsem_rt.h
+	new file:   include/linux/spinlock_rt.h
+	new file:   include/linux/spinlock_types_nort.h
+	new file:   include/linux/spinlock_types_raw.h
+	new file:   include/linux/spinlock_types_rt.h
+	new file:   include/linux/wait-simple.h
+	new file:   include/linux/work-simple.h
+	new file:   include/trace/events/hist.h
+	new file:   include/trace/events/latency_hist.h
+	new file:   kernel/fork.c.rej
+	new file:   kernel/hrtimer.c.rej
+	new file:   kernel/rt.c
+	new file:   kernel/sched/core.c.rej
+	new file:   kernel/sched/work-simple.c
+	new file:   kernel/softirq.c.rej
+	new file:   kernel/trace/latency_hist.c
+	new file:   kernel/wait-simple.c
+	new file:   localversion-rt
+	new file:   mm/page_alloc.c.rej
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	git_status_out.txt
+
