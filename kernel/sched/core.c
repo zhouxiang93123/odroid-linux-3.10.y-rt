@@ -4081,13 +4081,22 @@ static struct task_struct *find_process_by_pid(pid_t pid)
 
 extern struct cpumask hmp_slow_cpu_mask;
 
-/* Actually do priority change: must hold rq lock. */
-static void
-__setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
+
+//RGu static void
+//RGu __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
+static void __setscheduler_params(struct task_struct *p, int policy, int prio)
 {
 	p->policy = policy;
 	p->rt_priority = prio;
 	p->normal_prio = normal_prio(p);
+        set_load_weight(p);
+}
+
+/* Actually do priority change: must hold rq lock. */
+static void
+__setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
+{
+	__setscheduler_params(p, policy, prio);
 	/* we are holding p->pi_lock already */
 	p->prio = rt_mutex_getprio(p);
 	if (rt_prio(p->prio)) {
@@ -4099,7 +4108,7 @@ __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 	}
 	else
 		p->sched_class = &fair_sched_class;
-	set_load_weight(p);
+	//RGu set_load_weight(p);
 }
 
 /*
@@ -7506,7 +7515,9 @@ void __might_sleep(const char *file, int line, int preempt_offset)
 	static unsigned long prev_jiffy;	/* ratelimiting */
 
 	rcu_sleep_check(); /* WARN_ON_ONCE() by default, no rate limit reqd. */
-	if ((preempt_count_equals(preempt_offset) && !irqs_disabled()) ||
+	//RGu if ((preempt_count_equals(preempt_offset) && !irqs_disabled()) ||
+ 	if ((preempt_count_equals(preempt_offset) && !irqs_disabled() &&
+ 	     !is_idle_task(current)) ||
 	    oops_in_progress)
 		return;
 	if (system_state != SYSTEM_RUNNING &&

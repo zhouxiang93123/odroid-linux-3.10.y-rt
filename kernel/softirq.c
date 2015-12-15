@@ -416,14 +416,16 @@ asmlinkage void __do_softirq(void)
 
 	__local_bh_disable((unsigned long)__builtin_return_address(0),
 				SOFTIRQ_OFFSET);
-	lockdep_softirq_enter();
+	//RGu lockdep_softirq_enter();
+        lockdep_softirq_start();
 
 	cpu = smp_processor_id();
 restart:
 	/* Reset the pending bitmask before enabling irqs */
 	set_softirq_pending(0);
 
-	local_irq_enable();
+	/* RGu
+        local_irq_enable();
 
 	h = softirq_vec;
 
@@ -455,6 +457,8 @@ restart:
 	} while (pending);
 
 	local_irq_disable();
+        RGu */
+        handle_pending_softirqs(pending, cpu, 1);
 
 	pending = local_softirq_pending();
 	if (pending) {
@@ -911,16 +915,7 @@ void __tasklet_hi_schedule(struct tasklet_struct *t)
 
 EXPORT_SYMBOL(__tasklet_hi_schedule);
 
-void __tasklet_hi_schedule_first(struct tasklet_struct *t)
-{
-	BUG_ON(!irqs_disabled());
-
-	t->next = __this_cpu_read(tasklet_hi_vec.head);
-	__this_cpu_write(tasklet_hi_vec.head, t);
-	__raise_softirq_irqoff(HI_SOFTIRQ);
-}
-
-EXPORT_SYMBOL(__tasklet_hi_schedule_first);
+/*RGu
 
 static void tasklet_action(struct softirq_action *a)
 {
@@ -960,6 +955,128 @@ static void tasklet_action(struct softirq_action *a)
 		local_irq_enable();
 	}
 }
+*/
+
+void __tasklet_hi_schedule_first(struct tasklet_struct *t)
+{
+	__tasklet_hi_schedule(t);
+}
+ 
+EXPORT_SYMBOL(__tasklet_hi_schedule_first);
+
+
+void  tasklet_enable(struct tasklet_struct *t)
+{
+
+	if (!atomic_dec_and_test(&t->count))
+		return;
+	if (test_and_clear_bit(TASKLET_STATE_PENDING, &t->state))
+		tasklet_schedule(t);
+}
+
+EXPORT_SYMBOL(tasklet_enable);
+
+void  tasklet_hi_enable(struct tasklet_struct *t)
+{
+	if (!atomic_dec_and_test(&t->count))
+		return;
+	if (test_and_clear_bit(TASKLET_STATE_PENDING, &t->state))
+		tasklet_hi_schedule(t);
+}
+
+EXPORT_SYMBOL(tasklet_hi_enable);
+
+static void
+__tasklet_action(struct softirq_action *a, struct tasklet_struct *list)
+{
+	int loops = 1000000;
+ 
+ 	while (list) {
+ 		struct tasklet_struct *t = list;
+ 
+ 		list = list->next;
+ 
+
+		/*
+		 * Should always succeed - after a tasklist got on the
+		 * list (after getting the SCHED bit set from 0 to 1),
+		 * nothing but the tasklet softirq it got queued to can
+		 * lock it:
+		 */
+		if (!tasklet_trylock(t)) {
+			WARN_ON(1);
+			continue;
+ 		}
+ 
+
+ 		t->next = NULL;
+
+
+		/*
+		 * If we cannot handle the tasklet because it's disabled,
+		 * mark it as pending. tasklet_enable() will later
+		 * re-schedule the tasklet.
+		 */
+		if (unlikely(atomic_read(&t->count))) {
+out_disabled:
+			/* implicit unlock: */
+			wmb();
+			t->state = TASKLET_STATEF_PENDING;
+			continue;
+		}
+
+		/*
+		 * After this point on the tasklet might be rescheduled
+		 * on another CPU, but it can only be added to another
+		 * CPU's tasklet list if we unlock the tasklet (which we
+		 * dont do yet).
+		 */
+		if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+			WARN_ON(1);
+
+again:
+		t->func(t->data);
+
+		/*
+		 * Try to unlock the tasklet. We must use cmpxchg, because
+		 * another CPU might have scheduled or disabled the tasklet.
+		 * We only allow the STATE_RUN -> 0 transition here.
+		 */
+		while (!tasklet_tryunlock(t)) {
+			/*
+			 * If it got disabled meanwhile, bail out:
+			 */
+			if (atomic_read(&t->count))
+				goto out_disabled;
+			/*
+			 * If it got scheduled meanwhile, re-execute
+			 * the tasklet function:
+			 */
+			if (test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+				goto again;
+			if (!--loops) {
+				printk("hm, tasklet state: %08lx\n", t->state);
+				WARN_ON(1);
+				tasklet_unlock(t);
+				break;
+			}
+		}
+ 	}
+ }
+
+static void tasklet_action(struct softirq_action *a)
+{
+	struct tasklet_struct *list;
+
+	local_irq_disable();
+	list = __get_cpu_var(tasklet_vec).head;
+	__get_cpu_var(tasklet_vec).head = NULL;
+	__get_cpu_var(tasklet_vec).tail = &__get_cpu_var(tasklet_vec).head;
+	local_irq_enable();
+
+	__tasklet_action(a, list);
+}
+
 
 static void tasklet_hi_action(struct softirq_action *a)
 {
@@ -970,7 +1087,7 @@ static void tasklet_hi_action(struct softirq_action *a)
 	__this_cpu_write(tasklet_hi_vec.head, NULL);
 	__this_cpu_write(tasklet_hi_vec.tail, &__get_cpu_var(tasklet_hi_vec).head);
 	local_irq_enable();
-
+       /* RGu
 	while (list) {
 		struct tasklet_struct *t = list;
 
@@ -998,6 +1115,8 @@ static void tasklet_hi_action(struct softirq_action *a)
 		__raise_softirq_irqoff(HI_SOFTIRQ);
 		local_irq_enable();
 	}
+      RGu */
+      __tasklet_action(a, list);
 }
 
 
