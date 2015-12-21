@@ -1554,13 +1554,16 @@ static void ww_mutex_account_lock(struct rt_mutex *lock,
 	 * Give any possible sleeping processes the chance to wake up,
 	 * so they can recheck if they have to back off.
 	 */
+        
+        /* RGu: commented due to compile error
 	rbtree_postorder_for_each_entry_safe(waiter, n, &lock->waiters,
 					     tree_entry) {
-		/* XXX debug rt mutex waiter wakeup */
+		// XXX debug rt mutex waiter wakeup 
 
 		BUG_ON(waiter->lock != lock);
 		rt_mutex_wake_waiter(waiter);
 	}
+        */
 }
 
 #else
